@@ -64,9 +64,6 @@ void main(void)
   pwm_init();
   while (1)
   {
-    /* Toggles LEDs */
-    GPIO_WriteReverse(GPIO_LED_PORT, (GPIO_Pin_TypeDef)GPIO_LED_PINS);
-    delay_trivial(0xFFFF);
   }
 
 }
@@ -78,10 +75,11 @@ void gpio_init(void)
 }
 void pwm_init(void)
 {
-  uint16_t pwm1_period = 51;
+  // input clk is 2Mhz -> period = 52 means the pwm freq is 2Mhz / 52 ~= 38.5Khz
+  uint16_t pwm1_period = 52;
   // time_pulse = (period*duty/100) - 1;
   uint16_t tim_pulse =  (pwm1_period * 50 / 100) - 1;
-  uint16_t CCR3_Val = 125;
+
   TIM1_DeInit();
   TIM1_TimeBaseInit(0, TIM1_COUNTERMODE_UP, pwm1_period, 0);
   TIM1_OC3Init(TIM1_OCMODE_PWM2, 
@@ -94,24 +92,18 @@ void pwm_init(void)
   TIM1_Cmd(ENABLE);
   TIM1_CtrlPWMOutputs(ENABLE);
 
-  // TIM2_DeInit();
-  // TIM2_TimeBaseInit(1000, 39);
-  // TIM2_OC3Init(TIM2_OCMODE_PWM2, 
-  //               TIM2_OUTPUTSTATE_ENABLE,
-  //               19, TIM2_OCPOLARITY_LOW);
-  // TIM2_Cmd(ENABLE);
+/* Time base configuration */
+  TIM2_DeInit();
+  TIM2_TimeBaseInit(TIM2_PRESCALER_32768, 51);
 
-  /* Time base configuration */
-  // TIM2_TimeBaseInit(TIM2_PRESCALER_1, 999);
+  /* PWM1 Mode configuration: Channel2 */ 
+  TIM2_OC2Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE,24, TIM2_OCPOLARITY_HIGH);
+  TIM2_OC2PreloadConfig(ENABLE);
 
-  // /* PWM1 Mode configuration: Channel3 */         
-  // TIM2_OC3Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE,CCR3_Val, TIM2_OCPOLARITY_HIGH);
-  // TIM2_OC3PreloadConfig(ENABLE);
+  TIM2_ARRPreloadConfig(ENABLE);
 
-  // TIM2_ARRPreloadConfig(ENABLE);
-
-  // /* TIM2 enable counter */
-  // TIM2_Cmd(ENABLE);
+  /* TIM2 enable counter */
+  TIM2_Cmd(ENABLE);
 }
 /**
   * @brief Delay

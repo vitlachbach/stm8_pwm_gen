@@ -54,20 +54,20 @@ Settings.1.7=Root.Config.1.Settings.7
 Settings.1.8=Root.Config.1.Settings.8
 
 [Root.Config.0.Settings.0]
-String.6.0=2018,10,9,10,11,7
+String.6.0=2018,10,9,14,49,57
 String.100.0=ST Assembler Linker
 String.100.1=ST7 Cosmic
 String.100.2=STM8 Cosmic
 String.100.3=ST7 Metrowerks V1.1
 String.100.4=Raisonance
 String.101.0=STM8 Cosmic
-String.102.0=
+String.102.0=C:\Program Files (x86)\COSMIC\CXSTM8_EVAL
 String.103.0=
 String.104.0=Hstm8
 String.105.0=Lib
 String.106.0=Debug
 String.107.0=pwm_gen.elf
-Int.108=0
+Int.108=1
 
 [Root.Config.0.Settings.1]
 String.6.0=2018,10,9,10,11,7
@@ -143,7 +143,7 @@ String.100.2=STM8 Cosmic
 String.100.3=ST7 Metrowerks V1.1
 String.100.4=Raisonance
 String.101.0=STM8 Cosmic
-String.102.0=
+String.102.0=C:\Program Files (x86)\COSMIC\FSE_Compilers\CXSTM8
 String.103.0=
 String.104.0=Hstm8
 String.105.0=Lib
