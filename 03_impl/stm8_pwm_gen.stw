@@ -8,5 +8,5 @@ Filename=pwm_gen.stp
 Dependencies=
 [Options]
 ActiveProject=pwm_gen
-ActiveConfig=Debug
+ActiveConfig=Release
 AddSortedElements=1

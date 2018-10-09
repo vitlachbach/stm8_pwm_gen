@@ -29,19 +29,25 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s.h"
 #include "stm8s_gpio.h"
+#include "stm8s_tim1.h"
+#include "stm8s_tim2.h"
 
 /* Private defines -----------------------------------------------------------*/
+#define GPIO_PWM_PORT (GPIOC)
+#define GPIO_PWM_PIN  (GPIO_PIN_3)
+
+#define GPIO_LED_PORT (GPIOD)
+#define GPIO_LED_PINS (GPIO_PIN_3)
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
-#define LED_GPIO_PORT  (GPIOD)
-#define LED_GPIO_PINS  (GPIO_PIN_3 | GPIO_PIN_6 | GPIO_PIN_7)
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-void Delay (uint16_t nCount);
-
+void gpio_init(void);
+void pwm_init(void);
+void delay_trivial(uint16_t count);
 /* Private functions ---------------------------------------------------------*/
 /* Public functions ----------------------------------------------------------*/
 
@@ -54,31 +60,72 @@ void main(void)
 {
 
   /* Initialize I/Os in Output Mode */
-  GPIO_Init(LED_GPIO_PORT, (GPIO_Pin_TypeDef)LED_GPIO_PINS, GPIO_MODE_OUT_PP_LOW_FAST);
-
+  gpio_init();
+  pwm_init();
   while (1)
   {
     /* Toggles LEDs */
-    GPIO_WriteReverse(LED_GPIO_PORT, (GPIO_Pin_TypeDef)LED_GPIO_PINS);
-    Delay(0xFFFF);
+    GPIO_WriteReverse(GPIO_LED_PORT, (GPIO_Pin_TypeDef)GPIO_LED_PINS);
+    delay_trivial(0xFFFF);
   }
 
 }
+void gpio_init(void)
+{
+  GPIO_Init(GPIO_PWM_PORT, (GPIO_Pin_TypeDef)GPIO_PWM_PIN, GPIO_MODE_OUT_PP_LOW_FAST);
+  GPIO_Init(GPIO_LED_PORT, (GPIO_Pin_TypeDef)GPIO_LED_PINS, GPIO_MODE_OUT_PP_LOW_FAST);
+  return;
+}
+void pwm_init(void)
+{
+  uint16_t pwm1_period = 51;
+  // time_pulse = (period*duty/100) - 1;
+  uint16_t tim_pulse =  (pwm1_period * 50 / 100) - 1;
+  uint16_t CCR3_Val = 125;
+  TIM1_DeInit();
+  TIM1_TimeBaseInit(0, TIM1_COUNTERMODE_UP, pwm1_period, 0);
+  TIM1_OC3Init(TIM1_OCMODE_PWM2, 
+                TIM1_OUTPUTSTATE_ENABLE,
+                TIM1_OUTPUTNSTATE_ENABLE,
+                tim_pulse, TIM1_OCPOLARITY_LOW,
+                TIM1_OCNPOLARITY_LOW, 
+                TIM1_OCIDLESTATE_SET, 
+                TIM1_OCNIDLESTATE_RESET);
+  TIM1_Cmd(ENABLE);
+  TIM1_CtrlPWMOutputs(ENABLE);
 
+  // TIM2_DeInit();
+  // TIM2_TimeBaseInit(1000, 39);
+  // TIM2_OC3Init(TIM2_OCMODE_PWM2, 
+  //               TIM2_OUTPUTSTATE_ENABLE,
+  //               19, TIM2_OCPOLARITY_LOW);
+  // TIM2_Cmd(ENABLE);
+
+  /* Time base configuration */
+  // TIM2_TimeBaseInit(TIM2_PRESCALER_1, 999);
+
+  // /* PWM1 Mode configuration: Channel3 */         
+  // TIM2_OC3Init(TIM2_OCMODE_PWM1, TIM2_OUTPUTSTATE_ENABLE,CCR3_Val, TIM2_OCPOLARITY_HIGH);
+  // TIM2_OC3PreloadConfig(ENABLE);
+
+  // TIM2_ARRPreloadConfig(ENABLE);
+
+  // /* TIM2 enable counter */
+  // TIM2_Cmd(ENABLE);
+}
 /**
   * @brief Delay
   * @param nCount
   * @retval None
   */
-void Delay(uint16_t nCount)
+
+void delay_trivial(uint16_t count)
 {
-  /* Decrement nCount value */
-  while (nCount != 0)
+  while (count != 0)
   {
-    nCount--;
+    count--;
   }
 }
-
 #ifdef USE_FULL_ASSERT
 
 /**
